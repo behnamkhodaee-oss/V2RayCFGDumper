@@ -295,7 +295,7 @@ addresses = [
     "https://t.me/s/Airdorap_Free",
     "https://t.me/s/VPN_SOLVE",
     "https://t.me/s/bglvps",
-    "https://t.me/v2ray_dalghak",
+    "https://t.me/s/v2ray_dalghak",
 ]
 
 
