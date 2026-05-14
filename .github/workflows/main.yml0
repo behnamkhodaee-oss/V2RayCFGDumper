@@ -1,0 +1,71 @@
+import requests
+from bs4 import BeautifulSoup
+from datetime import datetime, timezone
+import pytz
+import jdatetime
+
+# List of Telegram channels
+addresses = [
+    "https://t.me/s/IR_Predators",
+    "https://t.me/s/DailyV2RY",
+    # add or remove channels here
+]
+
+def remove_duplicates(input_list):
+    unique_list = []
+    for item in input_list:
+        if item not in unique_list:
+            unique_list.append(item)
+    return unique_list
+
+html_pages = []
+for url in addresses:
+    response = requests.get(url)
+    html_pages.append(response.text)
+
+codes = []
+for page in html_pages:
+    soup = BeautifulSoup(page, 'html.parser')
+    code_tags = soup.find_all('code')
+    for code_tag in code_tags:
+        code_content = code_tag.text.strip()
+        if "vless://" in code_content or "ss://" in code_content or "vmess://" in code_content or "trojan://" in code_content:
+            codes.append(code_content)
+
+codes = list(set(codes))  # Remove duplicates
+
+processed_codes = []
+
+# Get current date and time in Tehran timezone
+current_date_time = jdatetime.datetime.now(pytz.timezone('Asia/Tehran'))
+
+# Format date
+current_month = current_date_time.strftime("%b")
+current_day = current_date_time.strftime("%d")
+updated_hour = current_date_time.strftime("%H")
+updated_minute = current_date_time.strftime("%M")
+
+final_string = f"{current_month}-{current_day} | {updated_hour}:{updated_minute}"
+final_others_string = f"{current_month}-{current_day}"
+config_string = "# Updated: " + str(final_string) + "-"
+
+# Process each code
+for code in codes:
+    vmess_parts = code.split("vmess://")
+    vless_parts = code.split("vless://")
+    for part in vmess_parts + vless_parts:
+        if "ss://" in part or "vmess://" in part or "vless://" in part or "trojan://" in part:
+            processed_part = part.split("#")[0]
+            processed_codes.append(processed_part)
+
+processed_codes = remove_duplicates(processed_codes)
+
+# Write final output
+with open("sub.txt", "w", encoding="utf-8") as file:
+    for i, code in enumerate(processed_codes):
+        if i == 0:
+            config_string = "# Updated on " + final_string + " | New configs every 15 min"
+        else:
+            config_string = "# Server " + str(i) + " | " + str(final_others_string) + " | MTSRVRS"
+        config_final = code + config_string
+        file.write(config_final + "\n")
